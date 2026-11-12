@@ -29,17 +29,19 @@ export function PriorityMatrixView({
         const config = PRIORITY_CONFIG[priority];
         const priorityTasks = tasks.filter(t => t.priority === priority);
         const remainingCount = priorityTasks.filter(t => !t.completed).length;
+        const columnHeadingId = `matrix-col-${priority}`;
 
         return (
-          <div
+          <section
             key={priority}
+            aria-labelledby={columnHeadingId}
             className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl p-4 flex flex-col min-h-[350px] shadow-xs"
           >
             {/* Column Header */}
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-2">
-                <span className={`w-2 h-2 rounded-full ${config.dotClass}`} />
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                <span className={`w-2 h-2 rounded-full ${config.dotClass}`} aria-hidden="true" />
+                <h3 id={columnHeadingId} className="text-sm font-semibold text-slate-900 dark:text-white">
                   Priorité {config.label}
                 </h3>
               </div>
@@ -49,37 +51,40 @@ export function PriorityMatrixView({
             </div>
 
             {/* Tasks in column */}
-            <div className="flex-1 space-y-2.5 overflow-y-auto max-h-[500px] pr-1">
+            <div className="flex-1 overflow-y-auto max-h-[500px] pr-1">
               {priorityTasks.length === 0 ? (
                 <div className="h-32 flex flex-col items-center justify-center text-center text-xs text-slate-400 dark:text-slate-500">
                   <span>Aucune tâche {config.label.toLowerCase()}</span>
                 </div>
               ) : (
-                priorityTasks.map(task => (
-                  <TaskItem
-                    key={task.id}
-                    task={task}
-                    searchQuery={searchQuery}
-                    onToggle={onToggle}
-                    onDelete={onDelete}
-                    onUpdate={onUpdate}
-                    onDuplicate={onDuplicate}
-                  />
-                ))
+                <ul role="list" aria-label={`Tâches de priorité ${config.label}`} className="space-y-2.5 p-0 m-0 list-none">
+                  {priorityTasks.map(task => (
+                    <TaskItem
+                      key={task.id}
+                      task={task}
+                      searchQuery={searchQuery}
+                      onToggle={onToggle}
+                      onDelete={onDelete}
+                      onUpdate={onUpdate}
+                      onDuplicate={onDuplicate}
+                    />
+                  ))}
+                </ul>
               )}
             </div>
 
             {/* Quick add for this priority */}
             <div className="pt-3 mt-auto border-t border-slate-100 dark:border-slate-800">
               <button
+                type="button"
                 onClick={() => onQuickAddWithPriority(priority)}
-                className="w-full py-1.5 px-2 text-xs text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-lg flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                className="w-full py-1.5 px-2 text-xs text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-lg flex items-center justify-center gap-1.5 transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-slate-900 dark:focus-visible:outline-white focus-visible:outline-offset-1"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus className="w-3.5 h-3.5" aria-hidden="true" />
                 <span>Ajouter en priorité {config.label.toLowerCase()}</span>
               </button>
             </div>
-          </div>
+          </section>
         );
       })}
     </div>

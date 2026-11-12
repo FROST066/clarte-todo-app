@@ -103,6 +103,11 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col transition-colors selection:bg-slate-900 selection:text-white dark:selection:bg-white dark:selection:text-slate-950">
+      {/* Skip to main content link for keyboard & screen reader accessibility */}
+      <a href="#main-content" className="skip-link">
+        Passer au contenu principal
+      </a>
+
       {/* Top Bar Navigation */}
       <Header
         theme={theme}
@@ -113,34 +118,53 @@ export default function App() {
       />
 
       {/* Main Workspace Canvas */}
-      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 focus:outline-hidden"
+      >
         {/* Real-time remaining counter and progress */}
-        <StatsBanner
-          remaining={stats.remaining}
-          completed={stats.completed}
-          total={stats.total}
-          percent={stats.percent}
-          highRemaining={stats.highRemaining}
-          mediumRemaining={stats.mediumRemaining}
-          lowRemaining={stats.lowRemaining}
-          priorityFilter={priorityFilter}
-          onSelectPriorityFilter={setPriorityFilter}
-        />
+        <section aria-labelledby="stats-heading">
+          <h2 id="stats-heading" className="sr-only">
+            Statistiques et progression
+          </h2>
+          <StatsBanner
+            remaining={stats.remaining}
+            completed={stats.completed}
+            total={stats.total}
+            percent={stats.percent}
+            highRemaining={stats.highRemaining}
+            mediumRemaining={stats.mediumRemaining}
+            lowRemaining={stats.lowRemaining}
+            priorityFilter={priorityFilter}
+            onSelectPriorityFilter={setPriorityFilter}
+          />
+        </section>
 
         {/* Task Creator Form */}
-        <TaskForm onAddTask={addTask} />
+        <section aria-labelledby="new-task-heading">
+          <h2 id="new-task-heading" className="sr-only">
+            Ajouter une nouvelle tâche
+          </h2>
+          <TaskForm onAddTask={addTask} />
+        </section>
 
         {/* Real-time Search Bar at top of the task list */}
-        <SearchBar
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          filteredCount={filteredTasks.length}
-          totalCount={tasks.length}
-        />
+        <section aria-label="Recherche">
+          <SearchBar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            filteredCount={filteredTasks.length}
+            totalCount={tasks.length}
+          />
+        </section>
 
         {/* Dynamic Filter Controls & List vs Focus View */}
         {activeTab === 'all' ? (
-          <div className="space-y-4">
+          <section aria-labelledby="tasks-list-heading" className="space-y-4">
+            <h2 id="tasks-list-heading" className="sr-only">
+              Liste des tâches
+            </h2>
             <FilterBar
               statusFilter={statusFilter}
               onStatusChange={setStatusFilter}
@@ -169,9 +193,12 @@ export default function App() {
               onResetSample={resetToSample}
               onClearSearch={() => setSearchQuery('')}
             />
-          </div>
+          </section>
         ) : (
-          <div className="space-y-4">
+          <section aria-labelledby="matrix-heading" className="space-y-4">
+            <h2 id="matrix-heading" className="sr-only">
+              Vue par priorité
+            </h2>
             <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 px-1">
               <span>Répartition par colonnes de priorité pour une organisation ciblée.</span>
               <span className="tabular-nums font-medium">{stats.remaining} tâches à réaliser</span>
@@ -186,7 +213,7 @@ export default function App() {
               onDuplicate={duplicateTask}
               onQuickAddWithPriority={handleQuickAddWithPriority}
             />
-          </div>
+          </section>
         )}
       </main>
 

@@ -17,11 +17,13 @@ export function DeleteConfirmModal({
   onConfirm,
   onCancel,
 }: DeleteConfirmModalProps) {
-  const confirmButtonRef = useRef<HTMLButtonElement>(null);
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen) {
-      confirmButtonRef.current?.focus();
+      // Focus safe action (cancel) first to prevent accidental deletion
+      cancelButtonRef.current?.focus();
     }
   }, [isOpen]);
 
@@ -29,7 +31,24 @@ export function DeleteConfirmModal({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isOpen || isDeleting) return;
       if (e.key === 'Escape') {
+        e.preventDefault();
         onCancel();
+      } else if (e.key === 'Tab' && dialogRef.current) {
+        // Focus trap
+        const focusableElements = dialogRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusableElements.length === 0) return;
+        const first = focusableElements[0];
+        const last = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
       }
     };
 
@@ -49,17 +68,24 @@ export function DeleteConfirmModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="delete-dialog-title"
+      aria-describedby="delete-dialog-description"
       onClick={e => {
         if (e.target === e.currentTarget && !isDeleting) {
           onCancel();
         }
       }}
     >
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl max-w-md w-full p-6 space-y-5 animate-in zoom-in-95 duration-150">
+      <div
+        ref={dialogRef}
+        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl max-w-md w-full p-6 space-y-5 animate-in zoom-in-95 duration-150"
+      >
         {/* Header */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+            <div
+              className="w-10 h-10 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0"
+              aria-hidden="true"
+            >
               <AlertTriangle className="w-5 h-5" />
             </div>
             <div>
@@ -69,7 +95,10 @@ export function DeleteConfirmModal({
               >
                 Supprimer la tâche ?
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <p
+                id="delete-dialog-description"
+                className="text-xs text-slate-500 dark:text-slate-400"
+              >
                 Cette action est irréversible.
               </p>
             </div>
@@ -81,7 +110,7 @@ export function DeleteConfirmModal({
             className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
             aria-label="Fermer la boîte de dialogue"
           >
-            <X className="w-4 h-4" />
+            <X className="w-4 h-4" aria-hidden="true" />
           </button>
         </div>
 
@@ -94,7 +123,7 @@ export function DeleteConfirmModal({
             <span
               className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-semibold border shrink-0 ${priorityMeta.badgeClass}`}
             >
-              <span className={`w-1.5 h-1.5 rounded-full ${priorityMeta.dotClass}`} />
+              <span className={`w-1.5 h-1.5 rounded-full ${priorityMeta.dotClass}`} aria-hidden="true" />
               <span>{priorityMeta.label}</span>
             </span>
           </div>
@@ -115,6 +144,7 @@ export function DeleteConfirmModal({
         {/* Action Buttons */}
         <div className="flex items-center justify-end gap-2.5 pt-2">
           <button
+            ref={cancelButtonRef}
             type="button"
             disabled={isDeleting}
             onClick={onCancel}
@@ -123,7 +153,6 @@ export function DeleteConfirmModal({
             Annuler
           </button>
           <button
-            ref={confirmButtonRef}
             type="button"
             disabled={isDeleting}
             onClick={onConfirm}
@@ -131,12 +160,12 @@ export function DeleteConfirmModal({
           >
             {isDeleting ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
                 <span>Suppression...</span>
               </>
             ) : (
               <>
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-4 h-4" aria-hidden="true" />
                 <span>Supprimer définitivement</span>
               </>
             )}

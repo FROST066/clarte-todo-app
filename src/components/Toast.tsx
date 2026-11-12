@@ -28,8 +28,8 @@ export function Toast({ toast, onClose }: ToastProps) {
 
   return (
     <div
-      role="status"
-      aria-live="polite"
+      role={isError ? 'alert' : 'status'}
+      aria-live={isError ? 'assertive' : 'polite'}
       className="fixed bottom-5 right-5 z-50 max-w-sm w-full animate-in slide-in-from-bottom-3 duration-200"
     >
       <div
@@ -41,7 +41,7 @@ export function Toast({ toast, onClose }: ToastProps) {
             : 'bg-slate-900/95 dark:bg-slate-800/95 border-slate-700 text-white'
         }`}
       >
-        <div className="shrink-0 mt-0.5">
+        <div className="shrink-0 mt-0.5" aria-hidden="true">
           {isError && <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400" />}
           {isSuccess && <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
           {!isError && !isSuccess && <Info className="w-4 h-4 text-slate-300" />}
@@ -55,9 +55,9 @@ export function Toast({ toast, onClose }: ToastProps) {
           type="button"
           onClick={onClose}
           className="shrink-0 p-1 -mr-1 -mt-1 text-current opacity-60 hover:opacity-100 rounded transition-opacity"
-          aria-label="Fermer"
+          aria-label="Fermer la notification"
         >
-          <X className="w-3.5 h-3.5" />
+          <X className="w-3.5 h-3.5" aria-hidden="true" />
         </button>
       </div>
     </div>

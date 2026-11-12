@@ -42,15 +42,15 @@ export function SearchBar({
   const isSearching = searchQuery.trim().length > 0;
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl p-3 sm:p-3.5 shadow-xs transition-all focus-within:border-slate-400 dark:focus-within:border-slate-600 focus-within:ring-2 focus-within:ring-slate-900/5 dark:focus-within:ring-white/5">
+    <search className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl p-3 sm:p-3.5 shadow-xs transition-all focus-within:border-slate-400 dark:focus-within:border-slate-600 focus-within:ring-2 focus-within:ring-slate-900/5 dark:focus-within:ring-white/5">
       <div className="relative flex items-center gap-2.5">
-        <div className="text-slate-400 dark:text-slate-500 pl-1 shrink-0">
+        <div className="text-slate-400 dark:text-slate-500 pl-1 shrink-0" aria-hidden="true">
           <Search className="w-4 h-4" />
         </div>
 
         <input
           ref={inputRef}
-          type="text"
+          type="search"
           value={searchQuery}
           onChange={e => onSearchChange(e.target.value)}
           placeholder="Rechercher par mot-clé en temps réel (titre, note, tag)..."
@@ -61,7 +61,11 @@ export function SearchBar({
         {/* Real-time match counter pill and clear button */}
         <div className="flex items-center gap-2 shrink-0">
           {isSearching && (
-            <span className="text-xs text-slate-500 dark:text-slate-400 tabular-nums whitespace-nowrap bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
+            <span
+              role="status"
+              aria-live="polite"
+              className="text-xs text-slate-500 dark:text-slate-400 tabular-nums whitespace-nowrap bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md"
+            >
               {filteredCount} {filteredCount === 1 ? 'résultat' : 'résultats'}
             </span>
           )}
@@ -73,19 +77,22 @@ export function SearchBar({
                 onSearchChange('');
                 inputRef.current?.focus();
               }}
-              className="p-1 text-slate-400 hover:text-slate-700 dark:text-slate-500 dark:hover:text-slate-200 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="p-1 text-slate-400 hover:text-slate-700 dark:text-slate-500 dark:hover:text-slate-200 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-visible:outline-2 focus-visible:outline-slate-900 dark:focus-visible:outline-white focus-visible:outline-offset-1"
               title="Effacer la recherche (Échap)"
               aria-label="Effacer la recherche"
             >
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4" aria-hidden="true" />
             </button>
           ) : (
-            <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 text-[11px] font-mono text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded select-none">
+            <kbd
+              aria-hidden="true"
+              className="hidden sm:inline-flex items-center px-1.5 py-0.5 text-[11px] font-mono text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded select-none"
+            >
               /
             </kbd>
           )}
         </div>
       </div>
-    </div>
+    </search>
   );
 }
