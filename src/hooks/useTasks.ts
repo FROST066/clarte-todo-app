@@ -35,11 +35,19 @@ export function useTasks() {
     dueDate?: string;
     category?: string;
   }) => {
+    const trimmedTitle = data?.title?.trim();
+    if (!trimmedTitle) {
+      console.warn("Impossible d'ajouter une tâche avec un titre vide.");
+      return;
+    }
     try {
       const response = await fetch('/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          title: trimmedTitle,
+        }),
       });
       if (response.ok) {
         const createdTask = await response.json();
@@ -75,11 +83,16 @@ export function useTasks() {
   };
 
   const updateTask = async (id: string, updates: Partial<Omit<Task, 'id' | 'createdAt'>>) => {
+    if (updates.title !== undefined && !updates.title.trim()) {
+      console.warn("Impossible de mettre à jour une tâche avec un titre vide.");
+      return;
+    }
+    const cleanUpdates = updates.title !== undefined ? { ...updates, title: updates.title.trim() } : updates;
     try {
       const response = await fetch(`/api/tasks/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
+        body: JSON.stringify(cleanUpdates),
       });
       if (response.ok) {
         const updated = await response.json();

@@ -32,16 +32,28 @@ export function createApp(options = {}) {
     if (!title || typeof title !== 'string' || !title.trim()) {
       return res.status(400).json({ error: 'Le titre est obligatoire' });
     }
-    const task = store.create({ title, description, priority, dueDate, category });
-    res.status(201).json(task);
+    try {
+      const task = store.create({ title, description, priority, dueDate, category });
+      res.status(201).json(task);
+    } catch (err) {
+      res.status(400).json({ error: err.message || 'Le titre est obligatoire' });
+    }
   });
 
   app.put('/api/tasks/:id', (req, res) => {
-    const updated = store.update(req.params.id, req.body || {});
-    if (!updated) {
-      return res.status(404).json({ error: 'Tâche non trouvée' });
+    const { title } = req.body || {};
+    if (title !== undefined && (typeof title !== 'string' || !title.trim())) {
+      return res.status(400).json({ error: 'Le titre ne peut pas être vide' });
     }
-    res.json(updated);
+    try {
+      const updated = store.update(req.params.id, req.body || {});
+      if (!updated) {
+        return res.status(404).json({ error: 'Tâche non trouvée' });
+      }
+      res.json(updated);
+    } catch (err) {
+      res.status(400).json({ error: err.message || 'Données invalides' });
+    }
   });
 
   app.delete('/api/tasks/completed', (req, res) => {

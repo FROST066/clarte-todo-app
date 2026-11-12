@@ -112,11 +112,15 @@ export class TaskStore {
     return tasks.find(t => t.id === id);
   }
 
-  create(data) {
+  create(data = {}) {
+    const title = typeof data?.title === 'string' ? data.title.trim() : '';
+    if (!title) {
+      throw new Error('Le titre est obligatoire');
+    }
     const tasks = this.readTasks();
     const newTask = {
       id: 'task_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
-      title: (data.title || '').trim(),
+      title,
       description: data.description ? data.description.trim() : undefined,
       priority: ['high', 'medium', 'low'].includes(data.priority) ? data.priority : 'medium',
       completed: false,
@@ -153,7 +157,11 @@ export class TaskStore {
     };
 
     if (updates.title !== undefined) {
-      updatedTask.title = String(updates.title).trim();
+      const trimmedTitle = typeof updates.title === 'string' ? updates.title.trim() : String(updates.title).trim();
+      if (!trimmedTitle) {
+        throw new Error('Le titre ne peut pas être vide');
+      }
+      updatedTask.title = trimmedTitle;
     }
     if (updates.description !== undefined) {
       updatedTask.description = updates.description ? String(updates.description).trim() : undefined;

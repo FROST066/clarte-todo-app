@@ -23,13 +23,14 @@ export function TaskForm({ onAddTask }: TaskFormProps) {
 
   const handleSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!title.trim()) {
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle) {
       setError('Veuillez renseigner un titre pour la tâche.');
       return;
     }
 
     onAddTask({
-      title: title.trim(),
+      title: trimmedTitle,
       description: description.trim() || undefined,
       priority,
       dueDate: dueDate || undefined,
@@ -81,7 +82,8 @@ export function TaskForm({ onAddTask }: TaskFormProps) {
 
           <button
             type="submit"
-            className="px-4 py-2.5 text-xs sm:text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0 shadow-xs cursor-pointer"
+            disabled={!title.trim()}
+            className="px-4 py-2.5 text-xs sm:text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-slate-900 dark:disabled:hover:bg-white rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0 shadow-xs cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Ajouter</span>
