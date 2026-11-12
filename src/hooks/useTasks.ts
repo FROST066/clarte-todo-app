@@ -51,9 +51,9 @@ export function useTasks() {
     }
   };
 
-  const toggleTask = async (id: string) => {
+  const toggleTask = async (id: string): Promise<boolean> => {
     const target = tasks.find(t => t.id === id);
-    if (!target) return;
+    if (!target) return false;
     const nextCompleted = !target.completed;
 
     try {
@@ -65,9 +65,12 @@ export function useTasks() {
       if (response.ok) {
         const updated = await response.json();
         setTasks(prev => prev.map(t => (t.id === id ? updated : t)));
+        return true;
       }
+      return false;
     } catch (e) {
       console.error('Erreur lors du basculement de la tâche', e);
+      return false;
     }
   };
 

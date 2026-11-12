@@ -163,11 +163,7 @@ export function TaskItem({
 
   return (
     <div
-      className={`group relative bg-white dark:bg-slate-900 border rounded-xl p-3.5 sm:p-4 transition-all duration-150 ${
-        task.completed
-          ? 'border-slate-200/60 dark:border-slate-800/60 bg-slate-50/50 dark:bg-slate-900/40 opacity-75'
-          : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs'
-      }`}
+      className={`group relative bg-white dark:bg-slate-900 border rounded-xl p-3.5 sm:p-4 transition-all duration-150 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs`}
     >
       <div className="flex items-start gap-3">
         {/* Custom Checkbox */}
@@ -179,7 +175,7 @@ export function TaskItem({
               ? 'bg-emerald-600 border-emerald-600 text-white'
               : 'border-slate-300 dark:border-slate-600 hover:border-slate-500 dark:hover:border-slate-400 bg-white dark:bg-slate-800'
           }`}
-          aria-label={task.completed ? 'Marquer comme non terminée' : 'Marquer comme terminée'}
+          aria-label={task.completed ? 'Marquer comme non terminée (revenir en arrière)' : 'Marquer comme terminée'}
         >
           {task.completed && <Check className="w-3.5 h-3.5 stroke-[2.5]" />}
         </button>
@@ -190,9 +186,10 @@ export function TaskItem({
             <div className="flex items-center gap-2 flex-wrap min-w-0">
               <h3
                 onClick={() => onToggle(task.id)}
+                title={task.completed ? 'Cliquer pour démarquer la tâche (revenir en arrière)' : 'Cliquer pour marquer comme terminée'}
                 className={`text-sm sm:text-base font-medium leading-snug cursor-pointer select-none transition-colors ${
                   task.completed
-                    ? 'line-through text-slate-400 dark:text-slate-500'
+                    ? 'line-through text-slate-900 dark:text-slate-100 decoration-slate-400 dark:decoration-slate-500 decoration-2'
                     : 'text-slate-900 dark:text-slate-100 hover:text-slate-700 dark:hover:text-slate-300'
                 }`}
               >
@@ -244,7 +241,7 @@ export function TaskItem({
             <div className="mt-1">
               <p
                 className={`text-xs text-slate-600 dark:text-slate-400 leading-relaxed ${
-                  task.completed ? 'line-through opacity-70' : ''
+                  task.completed ? 'line-through decoration-slate-400 dark:decoration-slate-500' : ''
                 } ${isDescriptionOpen ? '' : 'line-clamp-2'}`}
               >
                 {highlightText(task.description, searchQuery)}

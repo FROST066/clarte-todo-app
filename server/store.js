@@ -96,8 +96,15 @@ export class TaskStore {
     fs.renameSync(tempPath, this.filePath);
   }
 
-  getAll() {
-    return this.readTasks();
+  getAll(filter = {}) {
+    const tasks = this.readTasks();
+    if (filter && filter.status === 'active') {
+      return tasks.filter(t => !t.completed);
+    }
+    if (filter && filter.status === 'completed') {
+      return tasks.filter(t => t.completed);
+    }
+    return tasks;
   }
 
   getById(id) {

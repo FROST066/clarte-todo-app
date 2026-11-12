@@ -15,7 +15,8 @@ export function createApp(options = {}) {
 
   // API Routes
   app.get('/api/tasks', (req, res) => {
-    res.json(store.getAll());
+    const { status } = req.query;
+    res.json(store.getAll({ status }));
   });
 
   app.get('/api/tasks/:id', (req, res) => {

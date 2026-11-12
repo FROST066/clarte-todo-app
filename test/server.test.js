@@ -65,6 +65,57 @@ describe('TaskStore & tasks.json persistence', () => {
     assert.equal(reloaded.title, 'Tâche modifiée');
   });
 
+  it('permet de marquer une tâche comme faite puis de revenir en arrière avec persistance dans tasks.json', () => {
+    const store = new TaskStore(tasksFilePath);
+    const created = store.create({ title: 'Tester bascule statut' });
+    assert.equal(created.completed, false);
+
+    // 1. Marquer comme faite
+    const markedDone = store.update(created.id, { completed: true });
+    assert.equal(markedDone.completed, true);
+    assert.ok(markedDone.completedAt);
+
+    // Vérification persistance disque dans tasks.json
+    let diskTasks = JSON.parse(fs.readFileSync(tasksFilePath, 'utf-8'));
+    let diskTask = diskTasks.find(t => t.id === created.id);
+    assert.equal(diskTask.completed, true);
+    assert.ok(diskTask.completedAt);
+
+    // 2. Revenir en arrière (démarquer la tâche)
+    const reverted = store.update(created.id, { completed: false });
+    assert.equal(reverted.completed, false);
+    assert.equal(reverted.completedAt, undefined);
+
+    // Vérification persistance disque dans tasks.json après retour en arrière
+    diskTasks = JSON.parse(fs.readFileSync(tasksFilePath, 'utf-8'));
+    diskTask = diskTasks.find(t => t.id === created.id);
+    assert.equal(diskTask.completed, false);
+    assert.equal(diskTask.completedAt, undefined);
+  });
+
+  it('filtre les tâches par statut : toutes, seulement actives, seulement terminées', () => {
+    const store = new TaskStore(tasksFilePath);
+    // Vider pour tester le filtre de manière déterministe
+    store.clearAll();
+
+    const t1 = store.create({ title: 'Tâche à faire 1' });
+    const t2 = store.create({ title: 'Tâche à faire 2' });
+    const t3 = store.create({ title: 'Tâche terminée' });
+    store.update(t3.id, { completed: true });
+
+    const allTasks = store.getAll({ status: 'all' });
+    const activeTasks = store.getAll({ status: 'active' });
+    const completedTasks = store.getAll({ status: 'completed' });
+
+    assert.equal(allTasks.length, 3);
+    assert.equal(activeTasks.length, 2);
+    assert.equal(completedTasks.length, 1);
+
+    assert.ok(activeTasks.every(t => !t.completed));
+    assert.ok(completedTasks.every(t => t.completed));
+    assert.equal(completedTasks[0].id, t3.id);
+  });
+
   it('supprime une tâche par id', () => {
     const store = new TaskStore(tasksFilePath);
     const created = store.create({ title: 'A supprimer' });
@@ -133,11 +184,45 @@ describe('Express API Endpoints', () => {
     assert.ok(err.error);
   });
 
-  it('PUT /api/tasks/:id met à jour la tâche', async () => {
+  it('GET /api/tasks?status=active|completed filtre les tâches retournées', async () => {
+    // Créer une tâche active et une terminée
+    const postRes1 = await fetch(`${baseUrl}/api/tasks`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'Tâche active API' }),
+    });
+    const taskActive = await postRes1.json();
+
+    const postRes2 = await fetch(`${baseUrl}/api/tasks`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'Tâche complétée API' }),
+    });
+    const taskToComplete = await postRes2.json();
+
+    await fetch(`${baseUrl}/api/tasks/${taskToComplete.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ completed: true }),
+    });
+
+    const activeRes = await fetch(`${baseUrl}/api/tasks?status=active`);
+    const activeTasks = await activeRes.json();
+    assert.ok(activeTasks.every((t) => !t.completed));
+    assert.ok(activeTasks.some((t) => t.id === taskActive.id));
+
+    const completedRes = await fetch(`${baseUrl}/api/tasks?status=completed`);
+    const completedTasks = await completedRes.json();
+    assert.ok(completedTasks.every((t) => t.completed));
+    assert.ok(completedTasks.some((t) => t.id === taskToComplete.id));
+  });
+
+  it('PUT /api/tasks/:id met à jour la tâche et permet de revenir en arrière', async () => {
     const listRes = await fetch(`${baseUrl}/api/tasks`);
     const tasks = await listRes.json();
     const target = tasks[0];
 
+    // Marquer comme faite
     const putRes = await fetch(`${baseUrl}/api/tasks/${target.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -147,6 +232,19 @@ describe('Express API Endpoints', () => {
     assert.equal(putRes.status, 200);
     const updated = await putRes.json();
     assert.equal(updated.completed, true);
+    assert.ok(updated.completedAt);
+
+    // Revenir en arrière
+    const revertRes = await fetch(`${baseUrl}/api/tasks/${target.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ completed: false }),
+    });
+
+    assert.equal(revertRes.status, 200);
+    const reverted = await revertRes.json();
+    assert.equal(reverted.completed, false);
+    assert.equal(reverted.completedAt, undefined);
   });
 
   it('DELETE /api/tasks/:id supprime la tâche', async () => {
