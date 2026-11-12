@@ -87,16 +87,19 @@ export function useTasks() {
     }
   };
 
-  const deleteTask = async (id: string) => {
+  const deleteTask = async (id: string): Promise<boolean> => {
     try {
       const response = await fetch(`/api/tasks/${id}`, {
         method: 'DELETE',
       });
       if (response.ok) {
         setTasks(prev => prev.filter(task => task.id !== id));
+        return true;
       }
+      return false;
     } catch (e) {
       console.error('Erreur lors de la suppression de la tâche', e);
+      return false;
     }
   };
 

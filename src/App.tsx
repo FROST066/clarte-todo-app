@@ -13,11 +13,19 @@ import { SearchBar } from './components/SearchBar';
 import { FilterBar } from './components/FilterBar';
 import { TaskList } from './components/TaskList';
 import { PriorityMatrixView } from './components/PriorityMatrixView';
-import { Priority } from './types/todo';
+import { DeleteConfirmModal } from './components/DeleteConfirmModal';
+import { Toast, ToastData } from './components/Toast';
+import { Priority, Task } from './types/todo';
 
 export default function App() {
   const { theme, toggleTheme } = useTheme();
   const [activeTab, setActiveTab] = useState<'all' | 'focus'>('all');
+
+  // Delete modal & toast state
+  const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [toast, setToast] = useState<ToastData | null>(null);
 
   const {
     tasks,
@@ -55,6 +63,42 @@ export default function App() {
     setStatusFilter('all');
     setPriorityFilter('all');
     setSearchQuery('');
+  };
+
+  const handleRequestDelete = (id: string) => {
+    const target = tasks.find(t => t.id === id);
+    if (!target) return;
+    setTaskToDelete(target);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!taskToDelete) return;
+    setIsDeleting(true);
+    const success = await deleteTask(taskToDelete.id);
+    setIsDeleting(false);
+
+    if (success) {
+      setIsDeleteModalOpen(false);
+      setToast({
+        id: String(Date.now()),
+        message: `La tâche "${taskToDelete.title}" a été supprimée avec succès.`,
+        type: 'success',
+      });
+      setTaskToDelete(null);
+    } else {
+      setToast({
+        id: String(Date.now()),
+        message: `Échec de la suppression de la tâche "${taskToDelete.title}". Veuillez vérifier la connexion au serveur.`,
+        type: 'error',
+      });
+    }
+  };
+
+  const handleCancelDelete = () => {
+    if (isDeleting) return;
+    setIsDeleteModalOpen(false);
+    setTaskToDelete(null);
   };
 
   return (
@@ -116,7 +160,7 @@ export default function App() {
               allTasksCount={stats.total}
               searchQuery={searchQuery}
               onToggle={toggleTask}
-              onDelete={deleteTask}
+              onDelete={handleRequestDelete}
               onUpdate={updateTask}
               onDuplicate={duplicateTask}
               onClearCompleted={clearCompleted}
@@ -137,7 +181,7 @@ export default function App() {
               tasks={searchQuery.trim() ? filteredTasks : tasks}
               searchQuery={searchQuery}
               onToggle={toggleTask}
-              onDelete={deleteTask}
+              onDelete={handleRequestDelete}
               onUpdate={updateTask}
               onDuplicate={duplicateTask}
               onQuickAddWithPriority={handleQuickAddWithPriority}
@@ -145,6 +189,18 @@ export default function App() {
           </div>
         )}
       </main>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        task={taskToDelete}
+        isOpen={isDeleteModalOpen}
+        isDeleting={isDeleting}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
+
+      {/* Floating Feedback Toast */}
+      <Toast toast={toast} onClose={() => setToast(null)} />
 
       {/* Quiet, minimalist footer */}
       <footer className="border-t border-slate-200/60 dark:border-slate-800/60 py-5 text-center text-xs text-slate-400 dark:text-slate-500">
