@@ -16,7 +16,10 @@
 ![Express](https://img.shields.io/badge/Express-4-000000?logo=express&logoColor=white)
 ![Tests](https://img.shields.io/badge/tests-36%20passing-2EA44F?logo=node.js&logoColor=white)
 ![Cloud Run](https://img.shields.io/badge/Deploy-Cloud%20Run-4285F4?logo=googlecloud&logoColor=white)
+![Render](https://img.shields.io/badge/Deploy-Render-46E3B7?logo=render&logoColor=black)
 ![a11y](https://img.shields.io/badge/a11y-WCAG%202.1%20AA-005A9C)
+
+[Fonctionnalités](#-fonctionnalités) · [Démarrage rapide](#-démarrage-rapide) · [API](#-api-rest) · [Déploiement](#️-déploiement) · [Antigravity](#-développé-avec-antigravity)
 
 </div>
 
@@ -76,6 +79,7 @@ clarte-todo-app/
 ├── test/                # 36 tests node:test (zéro dépendance)
 ├── .agents/             # Règles et sous-agents Antigravity (gitmoji, test-writer)
 ├── Dockerfile           # Build multi-étapes pour Cloud Run
+├── render.yaml          # Blueprint de déploiement Render
 └── tasks.json           # Données de départ
 ```
 
@@ -133,7 +137,24 @@ npm test
 
 36 tests couvrent la lecture, la création, la modification, la suppression, les actions groupées, le store et le fallback SPA. Ils ont été écrits par le sous-agent Antigravity [`test-writer`](.agents/agents/test-writer.md) avec `node:test` et `node:assert` uniquement.
 
-## ☁️ Déploiement sur Google Cloud Run
+## ☁️ Déploiement
+
+### Option 1 : Render (le plus simple, offre gratuite)
+
+Le dépôt contient un blueprint [`render.yaml`](render.yaml) prêt à l'emploi.
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/FROST066/clarte-todo-app)
+
+| Paramètre | Valeur |
+|---|---|
+| Runtime | Node 22 |
+| Build | `npm ci && npm run build` |
+| Start | `npm start` |
+| Health check | `/api/tasks` |
+
+> ℹ️ Render injecte la variable `PORT`, que le serveur lit automatiquement. Aucune clé ni secret n'est nécessaire.
+
+### Option 2 : Google Cloud Run
 
 ```bash
 gcloud run deploy clarte-todo-app \
@@ -142,7 +163,24 @@ gcloud run deploy clarte-todo-app \
   --allow-unauthenticated
 ```
 
-> ⚠️ Sur Cloud Run, le système de fichiers est éphémère : les tâches sont réinitialisées à chaque redémarrage d'instance. Pour une persistance durable, branchez Firestore ou Cloud SQL.
+> ⚠️ Sur Render comme sur Cloud Run, le système de fichiers est éphémère : les tâches sont réinitialisées à chaque redémarrage ou redéploiement. Pour une persistance durable, branchez une base de données (Postgres, Firestore…).
+
+## 🗺️ Pistes d'évolution
+
+- [ ] Persistance durable (Postgres ou Firestore)
+- [ ] Authentification et listes par utilisateur
+- [ ] Glisser-déposer dans la matrice de priorités
+- [ ] Mode hors ligne (PWA)
+
+## 🤝 Contribuer
+
+La branche `main` est protégée : toute modification passe par une Pull Request.
+
+1. Forkez le dépôt
+2. Créez une branche : `git checkout -b feat/ma-fonctionnalite`
+3. Commitez au format [gitmoji](https://gitmoji.dev/) : `✨ feat: ajoute ...`
+4. Vérifiez que `npm test` et `npm run lint` passent
+5. Ouvrez une Pull Request
 
 ## 🤖 Développé avec Antigravity
 

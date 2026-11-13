@@ -1,0 +1,16 @@
+# Blueprint Render : https://render.com/docs/blueprint-spec
+# Déploie l'API Express et le front React compilé dans un seul service web.
+services:
+  - type: web
+    name: clarte-todo-app
+    runtime: node
+    plan: free
+    region: frankfurt
+    branch: main
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/tasks
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
