@@ -8,6 +8,9 @@
 
 [![DevFest Marseille 2026](https://img.shields.io/badge/DevFest-Marseille%202026-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://gdg.community.dev/events/details/google-gdg-marseille-presents-devfest-marseille-2026/)
 [![Built with Antigravity](https://img.shields.io/badge/Built%20with-Antigravity-8E44AD?style=for-the-badge&logo=google&logoColor=white)](https://antigravity-code-lab-ab3bc7.gitlab.io/fr/bonus/03-antigravity-cli/)
+[![Démo en ligne](https://img.shields.io/badge/Démo-en%20ligne-46E3B7?style=for-the-badge&logo=render&logoColor=black)](https://clarte-todo-app.onrender.com)
+
+### 🌐 [Essayer Clarté en ligne → clarte-todo-app.onrender.com](https://clarte-todo-app.onrender.com)
 
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
@@ -18,6 +21,7 @@
 ![Cloud Run](https://img.shields.io/badge/Deploy-Cloud%20Run-4285F4?logo=googlecloud&logoColor=white)
 ![Render](https://img.shields.io/badge/Deploy-Render-46E3B7?logo=render&logoColor=black)
 ![a11y](https://img.shields.io/badge/a11y-WCAG%202.1%20AA-005A9C)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 [Fonctionnalités](#-fonctionnalités) · [Démarrage rapide](#-démarrage-rapide) · [API](#-api-rest) · [Déploiement](#️-déploiement) · [Antigravity](#-développé-avec-antigravity)
 
@@ -141,6 +145,10 @@ npm test
 
 ### Option 1 : Render (le plus simple, offre gratuite)
 
+🌐 **L'application est déployée ici : [https://clarte-todo-app.onrender.com](https://clarte-todo-app.onrender.com)**
+
+> 💤 Hébergée sur l'offre gratuite : après 15 min d'inactivité, le premier chargement peut prendre une trentaine de secondes.
+
 Le dépôt contient un blueprint [`render.yaml`](render.yaml) prêt à l'emploi.
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/FROST066/clarte-todo-app)
@@ -199,6 +207,10 @@ Ce projet montre ce qu'on peut faire avec un **workflow agentique** :
 - Le **[GDG Marseille](https://gdg.community.dev/)** et toute l'équipe du **DevFest Marseille 2026**
 - Les auteurs du **codelab Antigravity**
 - **Google** pour Antigravity et Cloud Run
+
+## 📄 Licence
+
+Distribué sous licence **MIT**. Voir le fichier [LICENSE](LICENSE).
 
 ---
 
