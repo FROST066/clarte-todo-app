@@ -1,1 +1,17 @@
+# Dépendances
 node_modules/
+
+# Build
+dist/
+
+# Variables d'environnement (ne jamais committer de vraies clés)
+.env
+.env.*
+!.env.example
+
+# Fichiers système / éditeurs
+.DS_Store
+**/.DS_Store
+.vscode/
+.idea/
+*.log
